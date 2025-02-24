@@ -1,47 +1,47 @@
 #include <chrono>
 #include <iostream>
 #include <string>
-
-// #include <ctime>
-// #include <iomanip>
+#include <map>
+#include "src/settings.h"
+#include "src/display.h"
 
 
 inline int getSeconds(std::chrono::_V2::system_clock::time_point &time){
     return std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count();
 }
 
-inline std::string precidingZero(int num){
-    if(num < 10){
-        return "0" + std::to_string(num);
+inline int getMinutes(std::chrono::_V2::system_clock::time_point &time){
+    return std::chrono::duration_cast<std::chrono::minutes>(time.time_since_epoch()).count();
+}
+
+
+void handleFlags(int argc, char const *argv[]){
+    std::map<std::string, std::string> flags;
+}
+
+bool checkIfUpdate(std::chrono::_V2::system_clock::time_point &then, std::chrono::_V2::system_clock::time_point &now, bool display_seconds){
+    if (display_seconds)
+    {
+        return getSeconds(now) != getSeconds(then);
     }
-    return std::to_string(num);
+    return getMinutes(now) != getMinutes(then);
 }
 
-void display(std::chrono::_V2::system_clock::time_point &time){
-    system("clear");
-
-    // std::cout << getSeconds(time) << "\r\n";
-    time_t tt = std::chrono::system_clock::to_time_t(time);
-    tm *lt = localtime(&tt);
-    // tm *lt = localtime((const time_t*) std::chrono::system_clock::to_time_t(time) );     //there must be some way to do that (segmentation fault)
-    std::cout << "╔══╦══╦══╗\r\n";
-    std::cout << "║" << precidingZero(lt->tm_hour) << "║" << precidingZero(lt->tm_min) << "║" << precidingZero(lt->tm_sec) << "║\r\n";
-    std::cout << "╚══╩══╩══╝";
-    std::cout << std::flush; 
-}
-
-
-int main(int argc, char const *argv[])
-{
-    auto then = std::chrono::system_clock::now();
+int main(int argc, char const *argv[]){
     
+    // handleFlags(argc, argv);
+    Settings settings = Settings();
+
+    auto then = std::chrono::system_clock::now();
+    display(then, settings);
+
     while (true)
     {
         auto now = std::chrono::system_clock::now();
         // std::cout << getSeconds(now) << " " << getSeconds(then) << "\r\n"; 
-        if (getSeconds(now) != getSeconds(then))    // checking if update is needed
+        if (checkIfUpdate(then, now, settings.display_seconds))
         {
-            display(now);
+            display(now, settings);
 
             then = now;
         }        
