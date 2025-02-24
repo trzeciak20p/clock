@@ -2,6 +2,7 @@
 A little clock app You can use inside your console
 
 ## Installation
+Linux only for now
 ```
 git clone https://github.com/trzeciak20p/clock
 cd clock
