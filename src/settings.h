@@ -1,21 +1,23 @@
 #pragma once
 
-#include <fstream>
+#include <string>
 
 enum t_display_mode{
+    INVALID,
     TEXT,
     SMALL,
     DIGITAL,
     ANALOG
 };
 
+
 class Settings
 {
     public:
-        Settings(int argc, char const *argv);
-        Settings();
+        Settings(){};
+        void setDisplayMode(std::string mode);
 
-        bool display_date = true;
+        bool display_date = false;
         bool display_seconds = true;
         t_display_mode display_mode = t_display_mode::TEXT;
 };

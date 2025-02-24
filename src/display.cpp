@@ -2,6 +2,15 @@
 
 #include <iostream>
 
+void displayHelp(){
+    std::cout << "Usage: clock [flags]\r\n" <<
+        "-h, -help \t\tdisplays help\r\n" <<
+        "-d, -date \t\tenable date display\r\n" <<
+        "-ns, -no-seconds \thides seconds\r\n" <<
+        "-m, -mode <mode> \tchanges the looks\r\n" << 
+        "\t\t\t<text, small, digital, analog>\r\n"; 
+}
+
 void displayText(tm *lt, const Settings &settings){
     std::cout << precidingZero(lt->tm_hour) << ":" << precidingZero(lt->tm_min);
     if(settings.display_seconds){
@@ -22,7 +31,6 @@ void displayAnalog(tm *lt, const Settings &settings){
 }
 
 void displaySmall(tm *lt, const Settings &settings){
-
     if (settings.display_seconds)
     {
         std::cout << "╔══╦══╦══╗\r\n";
@@ -52,22 +60,22 @@ void display(std::chrono::_V2::system_clock::time_point &time, const Settings &s
 
     switch (settings.display_mode)
     {
-    case t_display_mode::SMALL:
-        displaySmall(lt, settings);    
-        break;
+        case t_display_mode::SMALL:
+            displaySmall(lt, settings);    
+            break;
 
-    case t_display_mode::DIGITAL:
-        displayDigital(lt, settings);
-        break;
+        case t_display_mode::DIGITAL:
+            displayDigital(lt, settings);
+            break;
 
-    case t_display_mode::ANALOG:
-        displayAnalog(lt, settings);
-        break;
+        case t_display_mode::ANALOG:
+            displayAnalog(lt, settings);
+            break;
 
-    case t_display_mode::TEXT:
-    default:
-        displayText(lt, settings);
-        break;
+        case t_display_mode::TEXT:
+        default:
+            displayText(lt, settings);
+            break;
     }
 
     std::cout << std::flush; 
