@@ -30,7 +30,7 @@ bool checkIfUpdate(std::chrono::_V2::system_clock::time_point &then, std::chrono
 int main(int argc, char const *argv[]){
     
     // handleFlags(argc, argv);
-    Settings settings = Settings();
+    const Settings settings = Settings();
 
     auto then = std::chrono::system_clock::now();
     display(then, settings);
