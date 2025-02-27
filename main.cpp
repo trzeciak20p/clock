@@ -3,15 +3,17 @@
 #include <string>
 #include <array>
 #include "src/settings.h"
-#include "src/display.h"
+#include "src/clock.h"
+#include "src/timeHelper.cpp"
 
 
-inline int getSeconds(std::chrono::_V2::system_clock::time_point &time){
-    return std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count();
-}
-
-inline int getMinutes(std::chrono::_V2::system_clock::time_point &time){
-    return std::chrono::duration_cast<std::chrono::minutes>(time.time_since_epoch()).count();
+void displayHelp(){
+    std::cout << "Usage: clock [flags]\r\n" <<
+        "-h, -help \t\tdisplays help\r\n" <<
+        "-d, -date \t\tenable date display\r\n" <<
+        "-ns, -no-seconds \thides seconds\r\n" <<
+        "-m, -mode <mode> \tchanges the looks\r\n" << 
+        "\t\t\t<text, small, digital, analog>\r\n"; 
 }
 
 void handleFlags(int argc, char const *argv[], Settings &settings){    
@@ -67,20 +69,19 @@ int main(int argc, char const *argv[]){
     try{
         handleFlags(argc, argv, settings);
     }catch(const std::string e){
-        std::cerr << e << '\n';
+        std::cerr << e << "\r\n";
         return -1;
     } 
-
-    auto then = std::chrono::system_clock::now();
-    display(then, settings);
-
+    
+    Clock clock(settings);
+    clock.initialDraw();
     while (true)
     {
-        auto now = std::chrono::system_clock::now();
-        if (checkIfUpdate(then, now, settings.display_seconds))
+        clock.updateNow();
+        if (clock.checkForDraw())
         {
-            display(now, settings);
-            then = now;
+            clock.drawTime();
+            clock.updateThen();
         }        
     }
 
