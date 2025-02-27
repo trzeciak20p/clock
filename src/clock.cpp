@@ -2,72 +2,72 @@
 
 #include <iostream>
 #include <chrono>
-#include "timeHelper.cpp"
 #include "settings.h"
+#include "timeHelper.h"
+#include "templates.h"
 
-Clock::Clock(Settings settings): settings(settings) {
+Clock::Clock(Settings *settings): settings(settings) {
     
     then = std::chrono::system_clock::now();
     now = std::chrono::system_clock::now();
     
-    switch (settings.display_mode)
+    switch (settings->display_mode)
     {
-        // case t_display_mode::SMALL:
-        //     displaySmall(lt, settings);    
-        //     break;
+        case t_display_mode::SMALL:
+            body = getClockBodySmall(settings->display_seconds);
+            hours_pos = {2,2};
+            minutes_pos = {5,2};
+            seconds_pos = {8,2}; 
+            if (!settings->display_seconds)
+            {
+                hours_pos = {3,2};
+                minutes_pos = {8,2};
+            }        
+            break;
 
-        // case t_display_mode::DIGITAL:
-        //     displayDigital(lt, settings);
-        //     break;
+        case t_display_mode::DIGITAL:
+            body = getClockBodyDigital(settings->display_seconds);
+            // break;
 
-        // case t_display_mode::ANALOG:
-        //     displayAnalog(lt, settings);
-        //     break;
+        case t_display_mode::ANALOG:
+            body = getClockBodyAnalog(settings->display_seconds);
+            // break;
 
         case t_display_mode::TEXT:
         default:
-            // body[0] = "  :  :";
+            body = getClockBodyText(settings->display_seconds);
             hours_pos = {1,1};
-            minutes_pos = {hours_pos.x+3, hours_pos.y};
-            if (settings.display_seconds)
-            {
-                seconds_pos = {minutes_pos.x+3, minutes_pos.y};
-            }       
+            minutes_pos = {4, 1};
+            seconds_pos = {7, 1};                 
             break;
     }
-    // debug
-    hours_pos = {2,2};
-    minutes_pos = {5, 2};
-    if (settings.display_seconds)
-    {
-        seconds_pos = {8, 2};
-    }  
 
-    if (settings.display_date)
+    if (settings->display_date)
     {
         hours_pos.y += 1;
         minutes_pos.y += 1;
         seconds_pos.y += 1;
     }
-    
-
-
 }
 
 void Clock::initialDraw(){
     system("clear");
+    if (settings->display_date)
+    {
+        drawDate();
+    }
     std::cout << "\e[?25l";     // hides cursor
-    std::cout << "╔══╦══╦══╗\r\n" <<
-                 "║  ║  ║  ║\r\n" <<
-                 "╚══╩══╩══╝";
-    
-    // for (const char *line : body)
-    // {
-    //     /* code */
-    // }
-
+    std::cout << body;
+    std::cout << "\r\n\e[s";    // save cursor position after the body
     drawTime();
     std::cout << std::flush;
+}
+
+void Clock::drawDate(){
+    time_t tt = std::chrono::system_clock::to_time_t(now);
+    tm *lt = localtime(&tt);
+    constexpr const char* months[12] = {"February", "January", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+    std::cout << lt->tm_year+1900 << " " << months[lt->tm_mon] << " " << lt->tm_mday << "\r\n";
 }
 
 void Clock::drawTime(){
@@ -76,9 +76,10 @@ void Clock::drawTime(){
 
     drawStringAt(precidingZero(lt->tm_hour), hours_pos);
     drawStringAt(precidingZero(lt->tm_min), minutes_pos);
-    if(settings.display_seconds){
+    if(settings->display_seconds){
         drawStringAt(precidingZero(lt->tm_sec), seconds_pos);
     }
+    std::cout << "\e[u";    // load saved cursor position (so text after closing app doesn't override clock)
     std::cout << std::flush;
 }
 
@@ -91,7 +92,7 @@ void Clock::updateThen(){
 }
 
 bool Clock::checkForDraw(){
-    if (settings.display_seconds)
+    if (settings->display_seconds)
     {
         return getSeconds(now) != getSeconds(then);
     }

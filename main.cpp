@@ -4,7 +4,7 @@
 #include <array>
 #include "src/settings.h"
 #include "src/clock.h"
-#include "src/timeHelper.cpp"
+#include "src/timeHelper.h"
 
 
 void displayHelp(){
@@ -29,8 +29,7 @@ void handleFlags(int argc, char const *argv[], Settings &settings){
     {
         std::string arg(argv[i]); 
         if(arg == "-h" || arg == "-help"){
-            displayHelp();
-            throw (std::string)"";
+            throw "";
         } 
     }
     for (int i = 1; i < argc; i++)
@@ -43,25 +42,17 @@ void handleFlags(int argc, char const *argv[], Settings &settings){
         }else if(arg == "-m" || arg == "-mode"){
             if (++i == argc)
             {
-                throw (std::string)"no mode specified after -m";
+                throw (std::string)"No mode specified after -m";
             }       
             settings.setDisplayMode(argv[i]);
             if (settings.display_mode == t_display_mode::INVALID)
             {
-                throw "unrecognized mode value: " + (std::string)argv[i] + "\r\nuse: text, small, digital, analog";
+                throw "Unrecognized mode value: " + (std::string)argv[i] + "\r\nUse: text, small, digital, analog";
             }               
         }else if(!(arg == "-h" || arg == "-help")){
-            throw "urecognized parameter: " + arg;
+            throw "Unrecognized parameter: " + arg;
         }  
     }
-}
-
-bool checkIfUpdate(std::chrono::_V2::system_clock::time_point &then, std::chrono::_V2::system_clock::time_point &now, bool display_seconds){
-    if (display_seconds)
-    {
-        return getSeconds(now) != getSeconds(then);
-    }
-    return getMinutes(now) != getMinutes(then);
 }
 
 int main(int argc, char const *argv[]){
@@ -70,10 +61,14 @@ int main(int argc, char const *argv[]){
         handleFlags(argc, argv, settings);
     }catch(const std::string e){
         std::cerr << e << "\r\n";
+        std::cerr << "Use -h for help\r\n";
         return -1;
-    } 
-    
-    Clock clock(settings);
+    }catch(const char * e){     // temporary
+        displayHelp();
+        return 0;
+    }
+
+    Clock clock(&settings);
     clock.initialDraw();
     while (true)
     {
