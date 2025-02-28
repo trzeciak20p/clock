@@ -16,12 +16,13 @@ class Clock{
         void initialDraw();
         void drawDate();
         void drawTime();     
-        void updateThen();      // sets then to now
+        void updateThen();
         void updateNow();       
-        bool checkForDraw();    // checks if time should be redrawn
+        bool checkForDraw();
     
     private:
         void drawStringAt(std::string str, t_pos pos);
+        void loadTemplate();
         
         const char *body{};
         Settings *settings{};

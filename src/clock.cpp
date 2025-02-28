@@ -4,50 +4,12 @@
 #include <chrono>
 #include "settings.h"
 #include "timeHelper.h"
-#include "templates.h"
 
 Clock::Clock(Settings *settings): settings(settings) {
     
     then = std::chrono::system_clock::now();
     now = std::chrono::system_clock::now();
-    
-    switch (settings->display_mode)
-    {
-        case t_display_mode::SMALL:
-            body = getClockBodySmall(settings->display_seconds);
-            hours_pos = {2,2};
-            minutes_pos = {5,2};
-            seconds_pos = {8,2}; 
-            if (!settings->display_seconds)
-            {
-                hours_pos = {3,2};
-                minutes_pos = {8,2};
-            }        
-            break;
-
-        case t_display_mode::DIGITAL:
-            body = getClockBodyDigital(settings->display_seconds);
-            // break;
-
-        case t_display_mode::ANALOG:
-            body = getClockBodyAnalog(settings->display_seconds);
-            // break;
-
-        case t_display_mode::TEXT:
-        default:
-            body = getClockBodyText(settings->display_seconds);
-            hours_pos = {1,1};
-            minutes_pos = {4, 1};
-            seconds_pos = {7, 1};                 
-            break;
-    }
-
-    if (settings->display_date)
-    {
-        hours_pos.y += 1;
-        minutes_pos.y += 1;
-        seconds_pos.y += 1;
-    }
+    loadTemplate();
 }
 
 void Clock::initialDraw(){
@@ -79,7 +41,7 @@ void Clock::drawTime(){
     if(settings->display_seconds){
         drawStringAt(precidingZero(lt->tm_sec), seconds_pos);
     }
-    std::cout << "\e[u";    // load saved cursor position (so text after closing app doesn't override clock)
+    std::cout << "\e[u";        // load saved cursor position (so text after closing app doesn't override clock)
     std::cout << std::flush;
 }
 
