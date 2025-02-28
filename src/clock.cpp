@@ -51,7 +51,7 @@ Clock::Clock(Settings *settings): settings(settings) {
 }
 
 void Clock::initialDraw(){
-    system("clear");
+	std::cout << "\e[2J\e[H";   // clear terminal, return to it's (0,0)
     if (settings->display_date)
     {
         drawDate();
