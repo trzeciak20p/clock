@@ -13,12 +13,12 @@ Clock::Clock(Settings *settings): settings(settings) {
 }
 
 void Clock::initialDraw(){
-	std::cout << "\e[2J\e[H";   // clear terminal, return to it's (0,0)
+	std::cout << "\e[2J\e[H";   // clear terminal, move cursor to (0,0)
     if (settings->display_date)
     {
         drawDate();
     }
-    std::cout << "\e[?25l";     // hides cursor
+    std::cout << "\e[?25l";     // hides cursor, (don't know how to unhide it)
     std::cout << body;
     std::cout << "\r\n\e[s";    // save cursor position after the body
     drawTime();
@@ -41,7 +41,7 @@ void Clock::drawTime(){
     if(settings->display_seconds){
         drawStringAt(precidingZero(lt->tm_sec), seconds_pos);
     }
-    std::cout << "\e[u";        // load saved cursor position (so text after closing app doesn't override clock)
+    std::cout << "\e[u";        // load saved cursor position, so text after closing app doesn't override clock
     std::cout << std::flush;
 }
 
